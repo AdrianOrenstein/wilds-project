@@ -1,6 +1,6 @@
-from pytorch_lightning import Trainer, seed_everything
-from project.lit_mnist import LitClassifier
 from project.datasets.mnist import mnist
+from project.lit_mnist import LitClassifier
+from pytorch_lightning import Trainer, seed_everything
 
 
 def test_lit_classifier():
@@ -12,4 +12,4 @@ def test_lit_classifier():
     trainer.fit(model, train, val)
 
     results = trainer.test(test_dataloaders=test)
-    assert results[0]['test_acc'] > 0.7
+    assert results[0]["test_acc"] > 0.7
