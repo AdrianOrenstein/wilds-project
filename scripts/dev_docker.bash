@@ -7,5 +7,6 @@ docker run --rm -ti \
     -it \
     -p 8888:8888 \
     --gpus all \
+    --user "$(id -u):$(id -g)" \
     wilds-project \
     bash 
