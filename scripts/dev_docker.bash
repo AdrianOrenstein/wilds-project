@@ -8,6 +8,5 @@ docker run --rm -ti \
     -p 8888:8888 \
     --gpus all \
     --ipc host \
-    --user "$(id -u):$(id -g)" \
     wilds-project \
     bash 
