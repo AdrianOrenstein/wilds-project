@@ -19,10 +19,10 @@ lint:
 	bash scripts/lint.bash
 	@echo "✅✅✅✅✅ Lint is good! ✅✅✅✅✅"
 
-test:
-	bash scripts/test.bash
+tests:
+	bash scripts/tests.bash
 	@echo "✅✅✅✅✅ Tests are good! ✅✅✅✅✅"
 
-test_experiment: lint test
-	bash scripts/test_main.bash
+fake_experiment: lint tests
+	bash scripts/fake_experiment.bash
 
