@@ -13,11 +13,12 @@ stop:
 	docker container kill $$(docker ps -q)
 
 jupyter:
-	bash -i scripts/jupyter.bash
+	bash scripts/jupyter.bash
 
 lint:
-	black . 
-	isort . --settings-file=project/linters/isort.ini
-	flake8  --config=project/linters/flake8.ini
+	bash scripts/lint.bash
 	@echo "✅✅✅✅✅ Good to go! ✅✅✅✅✅"
+
+test_experiment: lint
+	bash scripts/test_main.bash
 
