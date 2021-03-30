@@ -17,8 +17,12 @@ jupyter:
 
 lint:
 	bash scripts/lint.bash
-	@echo "✅✅✅✅✅ Good to go! ✅✅✅✅✅"
+	@echo "✅✅✅✅✅ Lint is good! ✅✅✅✅✅"
 
-test_experiment: lint
+test:
+	bash scripts/test.bash
+	@echo "✅✅✅✅✅ Tests are good! ✅✅✅✅✅"
+
+test_experiment: lint test
 	bash scripts/test_main.bash
 

@@ -49,6 +49,10 @@ RUN conda install -y -c pytorch \
     numpy pandas matplotlib scikit-learn tqdm jupyter && \
     conda install -yc conda-forge pytorch-lightning black flake8 isort loguru
 
+# testing library
+COPY ./tests/requirements.txt /etc/test_requirements.txt
+RUN pip install --user --no-cache-dir -r /etc/test_requirements.txt
+
 # project specifics
 RUN conda install -yc conda-forge ffmpeg
 
