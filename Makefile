@@ -12,17 +12,20 @@ run: build
 stop:
 	docker container kill $$(docker ps -q)
 
-jupyter:
+jupyter: build
 	bash scripts/jupyter.bash
 
-lint:
+lint: build
 	bash scripts/lint.bash
 	@echo "✅✅✅✅✅ Lint is good! ✅✅✅✅✅"
 
-tests:
+tests: build
 	bash scripts/tests.bash
 	@echo "✅✅✅✅✅ Tests are good! ✅✅✅✅✅"
 
-fake_experiment: lint tests
+mlflow: build
+	bash scripts/mlflow.bash
+
+fake_experiment: build lint tests
 	bash scripts/fake_experiment.bash
 

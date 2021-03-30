@@ -53,6 +53,9 @@ RUN conda install -y -c pytorch \
 COPY ./tests/requirements.txt /etc/test_requirements.txt
 RUN pip install --user --no-cache-dir -r /etc/test_requirements.txt
 
+# ML flow
+RUN pip install mlflow
+
 # project specifics
 RUN conda install -yc conda-forge ffmpeg
 
