@@ -8,4 +8,4 @@ docker run --rm -ti \
     --gpus all \
     --ipc host \
     wilds-project \
-    bash 
+    ${@:-bash}

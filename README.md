@@ -32,14 +32,16 @@ Second, run for an interactive terminal
 make run
 ```
 
-## How to run a fake experiment
+## How to run an experiment
 
 First, download docker.
 
 Second, run for an interactive terminal
 
 ```bash
-make fake_experiment
+make run -- python src/main.py \
+    --dataset 'iwildcam' \
+    --experiment-id 'test_model'
 ```
 
 ## Linting

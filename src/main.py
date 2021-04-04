@@ -2,6 +2,7 @@ import click
 from loguru import logger
 import torch
 import wilds
+from typing import Tuple
 
 
 @click.command()

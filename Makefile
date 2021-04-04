@@ -7,7 +7,7 @@ build:
 	bash scripts/build_docker.bash
 
 run: build
-	bash scripts/dev_docker.bash
+	bash scripts/run.bash $(filter-out $@, $(MAKECMDGOALS))
 
 stop:
 	docker container kill $$(docker ps -q)
