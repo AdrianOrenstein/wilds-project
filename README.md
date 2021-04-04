@@ -39,7 +39,7 @@ First, download docker.
 Second, run for an interactive terminal
 
 ```bash
-make run -- python src/main.py \
+make run -- python src/train.py \
     --dataset 'iwildcam' \
     --experiment-id 'test_model'
 ```
@@ -53,7 +53,7 @@ make lint
 ## Tests
 
 ```bash
-make tests
+make test
 ```
 
 ### Citation

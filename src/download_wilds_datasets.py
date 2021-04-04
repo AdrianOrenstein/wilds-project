@@ -1,11 +1,7 @@
 import argparse
 import concurrent.futures
 from itertools import repeat
-import os
-import sys
-from typing import List
 
-import click
 import wilds
 
 

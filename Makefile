@@ -6,29 +6,30 @@ PIP = pip3
 build:
 	bash scripts/build_docker.bash
 
-run: build
+run:
+	bash scripts/run.bash $(filter-out $@, $(MAKECMDGOALS))
+
+# build and run
+runb: build
 	bash scripts/run.bash $(filter-out $@, $(MAKECMDGOALS))
 
 stop:
 	docker container kill $$(docker ps -q)
 
-jupyter: build
+jupyter:
 	bash scripts/jupyter.bash
 
-lint: build
+lint:
 	bash scripts/lint.bash
 	@echo "✅✅✅✅✅ Lint is good! ✅✅✅✅✅"
 
-tests: build
+test:
 	bash scripts/tests.bash
 	@echo "✅✅✅✅✅ Tests are good! ✅✅✅✅✅"
 
-mlflow: build
+mlflow:
 	bash scripts/mlflow.bash
 
-download: build
+download:
 	bash scripts/download_wilds_datasets.bash
-
-fake_experiment: build lint tests
-	bash scripts/fake_experiment.bash
 

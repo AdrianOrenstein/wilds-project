@@ -1,5 +1,5 @@
-from src.main import main
+from src.train import train
 
 
 def test_smoke_main():
-    assert main
+    assert train

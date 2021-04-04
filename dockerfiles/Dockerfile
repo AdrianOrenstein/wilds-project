@@ -44,7 +44,7 @@ RUN conda install pytorch==1.8.0 torchvision==0.9.0 cudatoolkit=11.1 -c pytorch 
 
 RUN conda install numpy pandas matplotlib scikit-learn tqdm jupyter ffmpeg -c conda-forge
 
-RUN conda install pytorch-lightning black flake8 isort loguru -c conda-forge 
+RUN conda install pytorch-lightning einops black flake8 isort loguru -c conda-forge 
 
 # testing library
 COPY ./tests/requirements.txt /etc/test_requirements.txt
@@ -52,6 +52,10 @@ RUN pip install --user --no-cache-dir -r /etc/test_requirements.txt
 
 # Logger - ML flow
 RUN pip install mlflow
+
+# install self as module
+COPY ./setup.py /app/setup.py
+RUN pip install --user --no-cache-dir -e .
 
 # project specifics
 RUN pip install --user --no-cache-dir torch-scatter -f https://pytorch-geometric.com/whl/torch-1.8.0+cu111.html && \
