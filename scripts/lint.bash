@@ -9,8 +9,8 @@ docker run --rm -ti \
     --ipc host \
     wilds-project \
     /bin/bash -c " \
-        black . && \
-        isort . --settings-file=linters/isort.ini && \
-        flake8  --config=linters/flake8.ini \
+        black src/ && \
+        isort src/ --settings-file=linters/isort.ini && \
+        flake8 src/ --config=linters/flake8.ini \
     "
     
