@@ -128,4 +128,5 @@ lightning_logs/
 MNIST
 .DS_Store
 
+# ML flow
 mlruns

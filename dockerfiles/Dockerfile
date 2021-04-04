@@ -1,4 +1,4 @@
-FROM nvidia/cuda:11.0-base-ubuntu20.04
+FROM nvidia/cuda:11.1-devel-ubuntu20.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -31,36 +31,32 @@ USER user
 ENV HOME=/home/user
 RUN chmod 777 /home/user
 
-# Install Miniconda and Python 3.8
+# Install Miniconda
 ENV CONDA_AUTO_UPDATE_CONDA=false
 ENV PATH=/home/user/miniconda/bin:$PATH
-RUN curl -sLo ~/miniconda.sh https://repo.continuum.io/miniconda/Miniconda3-py38_4.9.2-Linux-x86_64.sh && \
+RUN curl -sLo ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
     chmod +x ~/miniconda.sh && \
     ~/miniconda.sh -b -p ~/miniconda && \
-    rm ~/miniconda.sh && \
-    conda install -y python==3.8.3 && \
-    conda clean -ya
+    rm ~/miniconda.sh
 
 # CUDA 11.0-specific steps
-RUN conda install -y -c pytorch \
-    cudatoolkit=11.0.221 \
-    "pytorch=1.7.0=py3.8_cuda11.0.221_cudnn8.0.3_0" \
-    "torchvision=0.8.1=py38_cu110" \
-    numpy pandas matplotlib scikit-learn tqdm jupyter && \
-    conda install -yc conda-forge pytorch-lightning black flake8 isort loguru
+RUN conda install pytorch==1.8.0 torchvision==0.9.0 cudatoolkit=11.1 -c pytorch -c conda-forge
+
+RUN conda install numpy pandas matplotlib scikit-learn tqdm jupyter ffmpeg -c conda-forge
+
+RUN conda install pytorch-lightning black flake8 isort loguru -c conda-forge 
 
 # testing library
 COPY ./tests/requirements.txt /etc/test_requirements.txt
 RUN pip install --user --no-cache-dir -r /etc/test_requirements.txt
 
-# ML flow
+# Logger - ML flow
 RUN pip install mlflow
 
 # project specifics
-RUN conda install -yc conda-forge ffmpeg
-
-COPY ./setup/requirements.txt /etc/requirements.txt
-RUN pip install --user --no-cache-dir -r /etc/requirements.txt
+RUN pip install --user --no-cache-dir torch-scatter -f https://pytorch-geometric.com/whl/torch-1.8.0+cu111.html && \
+    pip install --user --no-cache-dir torch-geometric && \
+    pip install --user --no-cache-dir wilds
 
 # Set the default command to python3
 CMD ["python3"]

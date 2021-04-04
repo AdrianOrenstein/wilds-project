@@ -1,5 +1,7 @@
 import click
 from loguru import logger
+import torch
+import wilds
 
 
 @click.command()
@@ -8,6 +10,8 @@ from loguru import logger
 def main(dataset: str, experiment_id: str):
     logger.info(f"dataset: {dataset}")
     logger.info(f"experiment_id: {experiment_id}")
+
+    logger.info(wilds.benchmark_datasets)
 
 
 if __name__ == "__main__":

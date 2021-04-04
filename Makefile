@@ -26,6 +26,9 @@ tests: build
 mlflow: build
 	bash scripts/mlflow.bash
 
+download: build
+	bash scripts/download_wilds_datasets.bash
+
 fake_experiment: build lint tests
 	bash scripts/fake_experiment.bash
 
