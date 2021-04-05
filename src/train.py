@@ -1,15 +1,14 @@
-import time
 from typing import Any, Dict
 
 import click
 from loguru import logger
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import MLFlowLogger
-from src.experiments.experiments import get_experiment, get_experiment_names
+from src.experiments.experiments import get_experiment
 import torch
-import wilds
 
-PROJECT_CRONJOB_NAME = "adrian-wilds-project"
+PROJECT_NAME = "adrian-wilds-project"
+PROJECT_LOGDIR = "file:./mlruns"
 
 
 def get_cuda_config() -> Dict[str, Any]:
@@ -20,7 +19,7 @@ def get_cuda_config() -> Dict[str, Any]:
             "gpus": -1,
             "distributed_backend": "ddp",
         }
-        
+
     else:
         logger.info("cuda not available")
         return {"distributed_backend": None}
@@ -32,10 +31,6 @@ def get_cuda_config() -> Dict[str, Any]:
 def train(dataset: str, experiment_id: str):
     logger.info(f"dataset: {dataset}")
     logger.info(f"experiment_id: {experiment_id}")
-
-    logger.info(wilds.benchmark_datasets)
-
-    logger.info(get_experiment_names())
 
     experiment = get_experiment(experiment_id)
 
@@ -53,14 +48,14 @@ def train(dataset: str, experiment_id: str):
                 patience=75,
                 mode="min",
             ),
-            pl.callbacks.lr_monitor.LearningRateMonitor(logging_interval="epoch"),
+            pl.callbacks.lr_monitor.LearningRateMonitor(logging_interval="step"),
         ]
     )
 
     mlflow_logger = MLFlowLogger(
-        experiment_name="default",
-        #{experiment.NAME}-{int(time.time())}
-        tracking_uri="http://localhost:5000",
+        experiment_name=PROJECT_NAME,
+        tags=experiment.TAGS or {},
+        tracking_uri=PROJECT_LOGDIR,
     )
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -77,8 +72,12 @@ def train(dataset: str, experiment_id: str):
         checkpoint_callback=checkpoint_callback,
         max_epochs=5,
         callbacks=trainer_callbacks,
+        auto_scale_batch_size="power",
+        precision=16,
         **training_kwargs,
     )
+
+    trainer.tune(experiment, experiment.data_module)
 
     trainer.fit(experiment, experiment.data_module)
 

@@ -10,7 +10,7 @@ run:
 	bash scripts/run.bash $(filter-out $@, $(MAKECMDGOALS))
 
 # build and run
-runb: build
+runblt: build lint test
 	bash scripts/run.bash $(filter-out $@, $(MAKECMDGOALS))
 
 stop:

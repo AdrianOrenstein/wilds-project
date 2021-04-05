@@ -1,23 +1,29 @@
 from typing import Any, Callable, Dict, Optional, Tuple
 
-from loguru import logger
-import pytorch_lightning as pl
 import pytorch_lightning.metrics as pl_metrics
+from src.datasets.iwildcam import IWildCamDataModule
 from src.experiments.base import BaseExperiment
+from src.models.test_model import TestModel
 import torch
-from torch import nn
-import torchvision
-import wilds
 
 
 class ClassificationExperiment(BaseExperiment):
     NAME = "test-experiment"
+    TAGS = {
+        "MLFLOW_RUN_NAME": NAME,
+        "dataset": "iwildcam",
+        "algorithm": "test",
+        "model": "TestModel",
+    }
 
     def __init__(
         self,
         **kwargs: Optional[Any],
     ):
         super().__init__()
+
+        self.learning_rate: float = 0.001
+        self.batch_size: int = 32
 
         self.metrics: Dict[str, Callable] = kwargs.get(
             "metrics",
@@ -27,10 +33,8 @@ class ClassificationExperiment(BaseExperiment):
         )
 
         self.loss_fn = torch.nn.CrossEntropyLoss()
-        self.data_module = DataModule_iwildcam()
-        self.model = SimpleModel(self.data_module.dataset.n_classes)
-
-        self.learning_rate: float = 0.001
+        self.data_module = IWildCamDataModule(batch_size=self.batch_size)
+        self.model = TestModel(self.data_module.dataset.n_classes)
 
     def calculate_loss(self, y_hat: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         return self.loss_fn(y_hat, y)
@@ -91,91 +95,3 @@ class ClassificationExperiment(BaseExperiment):
             "frequency": 2,
             "strict": True,
         }
-
-
-class SimpleModel(torch.nn.Module):
-    NAME = "simple-model"
-
-    def __init__(
-        self,
-        num_classes: int,
-    ):
-        super().__init__()
-        self.num_classes = num_classes
-
-        self.features = torch.nn.Sequential(
-            nn.Conv2d(3, 64, 3),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3),
-            nn.ReLU(),
-            nn.Conv2d(64, 64, 3),
-            nn.ReLU(),
-            nn.AdaptiveAvgPool2d(1),
-        )
-
-        self.classifier = torch.nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(64, self.num_classes),
-        )
-
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
-        out = self.features(x)
-        out = self.classifier(out)
-        return out
-
-    def preprocessing(self, input: torch.Tensor) -> torch.LongTensor:
-        return NotImplementedError
-
-
-class DataModule_iwildcam(pl.LightningDataModule):
-    def __init__(
-        self,
-    ):
-        super().__init__()
-        self.dataset = wilds.get_dataset(dataset="iwildcam", download=False)
-
-    def prepare_data(self):
-        wilds.get_dataset(dataset="iwildcam", download=True)
-
-    def setup(self, stage=None):
-        self.train_dataset = self.dataset.get_subset(
-            "train",
-            transform=torchvision.transforms.Compose(
-                [
-                    torchvision.transforms.Resize((448, 448)),
-                    torchvision.transforms.ToTensor(),
-                ]
-            ),
-        )
-        self.val_dataset = self.dataset.get_subset(
-            "val",
-            transform=torchvision.transforms.Compose(
-                [
-                    torchvision.transforms.Resize((448, 448)),
-                    torchvision.transforms.ToTensor(),
-                ]
-            ),
-        )
-
-    def train_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.train_dataset,
-            batch_size=8,
-            num_workers=4,
-            shuffle=True,
-            pin_memory=True,
-        )
-
-    def val_dataloader(self):
-        return torch.utils.data.DataLoader(
-            self.val_dataset,
-            batch_size=8,
-            num_workers=4,
-            pin_memory=True,
-        )
-
-    # def test_dataloader(self):
-    #     test_split = Dataset(...)
-    #     return DataLoader(test_split)

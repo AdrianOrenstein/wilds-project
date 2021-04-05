@@ -6,6 +6,7 @@ import torch
 
 class BaseExperiment(pl.LightningModule):
     NAME = "base-experiment"
+    TAGS = {}
 
     def __init__(
         self,
