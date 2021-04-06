@@ -1,3 +1,4 @@
 data
+mlruns
 .pytest_cache
 dockerfiles

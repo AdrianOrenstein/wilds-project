@@ -2,12 +2,13 @@ from pathlib import Path
 from typing import Dict, List, Optional, Set, Type
 
 import pytorch_lightning as pl
-from src.experiments import test_model
+from src.experiments import iwilds_ERM, test_model
 from src.experiments.base import BaseExperiment
 
 AnExperiment = Type[BaseExperiment]
 _EXPERIMENT_CLASSES: List[AnExperiment] = [
     test_model.ClassificationExperiment,
+    iwilds_ERM.ClassificationExperiment,
 ]
 _EXPERIMENTS: Dict[str, AnExperiment] = {c.NAME: c for c in _EXPERIMENT_CLASSES}
 

@@ -39,10 +39,15 @@ First, download docker.
 Second, run for an interactive terminal
 
 ```bash
-make run -- python src/train.py \
-    --dataset 'iwildcam' \
+make run -- python src/train.py
     --experiment-id 'test_model'
 ```
+
+## How to make an experiment
+
+1. See example test experiment at `src/experiments/test_model.py`
+2. Inside of `src/experiments/experiments.py` import the new experiment
+3. Run `make run -- python src/train.py --experiment-id '<experiment_name>'`
 
 ## Linting
 

@@ -26,12 +26,8 @@ def get_cuda_config() -> Dict[str, Any]:
 
 
 @click.command()
-@click.option("--dataset", type=str, default="default", help="<list of datasets>")
-@click.option("--experiment-id", type=str, default="first-model")
-def train(dataset: str, experiment_id: str):
-    logger.info(f"dataset: {dataset}")
-    logger.info(f"experiment_id: {experiment_id}")
-
+@click.option("--experiment-id", type=str, default="")
+def train(experiment_id: str):
     experiment = get_experiment(experiment_id)
 
     logger.info(f"experiment name = {experiment.NAME}")
@@ -70,14 +66,16 @@ def train(dataset: str, experiment_id: str):
     trainer = pl.Trainer(
         logger=mlflow_logger,
         checkpoint_callback=checkpoint_callback,
-        max_epochs=5,
         callbacks=trainer_callbacks,
         auto_scale_batch_size="power",
         precision=16,
         **training_kwargs,
+        **experiment.TRAINING_KWARGS,
     )
 
-    trainer.tune(experiment, experiment.data_module)
+    if experiment.TAGS["PYLIGHTNING_TUNE"] is True:
+        logger.info("PYLIGHTNING_TUNE is True")
+        trainer.tune(experiment, experiment.data_module)
 
     trainer.fit(experiment, experiment.data_module)
 
