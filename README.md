@@ -71,3 +71,7 @@ make test
   year={Year}
 }
 ```
+
+## push to public
+
+`git push public public:master`
