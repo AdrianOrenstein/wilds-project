@@ -18,10 +18,10 @@ class ClassificationExperiment(BaseExperiment):
     NAME = "iwilds-ResNet50-ERM"
     TAGS = {
         "MLFLOW_RUN_NAME": NAME,
+        "SEED": 1,
         "dataset": "iwildcam",
         "algorithm": "ERM",
         "model": "torchvision.models.resnet50",
-        "PYLIGHTNING_TUNE": False,
     }
     TRAINING_KWARGS = {
         "max_epochs": 12,  # as per paper

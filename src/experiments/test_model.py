@@ -11,6 +11,7 @@ class ClassificationExperiment(BaseExperiment):
     NAME = "test-experiment"
     TAGS = {
         "MLFLOW_RUN_NAME": NAME,
+        "PYLIGHTNING_TUNE": True,
         "dataset": "iwildcam",
         "algorithm": "test",
         "model": "TestModel",
