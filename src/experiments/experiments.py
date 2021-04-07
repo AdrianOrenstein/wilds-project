@@ -24,11 +24,10 @@ def get_experiment(
     experiment: Optional[pl.Trainer] = _EXPERIMENTS.get(experiment_name, None)
 
     if not experiment:
-        print(experiment)
         raise KeyError(f"{experiment_name} unknown, available {get_experiment_names()}")
 
     if checkpoint_path is None:
-        return experiment()
+        return experiment
 
     else:
         return experiment.load_from_checkpoint(str(checkpoint_path))

@@ -11,16 +11,21 @@ class ClassificationExperiment(BaseExperiment):
     NAME = "test-experiment"
     TAGS = {
         "MLFLOW_RUN_NAME": NAME,
-        "PYLIGHTNING_TUNE": True,
         "dataset": "iwildcam",
         "algorithm": "test",
         "model": "TestModel",
     }
-    TRAINING_KWARGS = {
-        "max_epochs": 2,
-        "limit_train_batches": 0.1,
-        "limit_val_batches": 0.1,
-    }
+
+    @staticmethod
+    def add_model_specific_args(parent_parser):
+        parser = parent_parser.add_argument_group("test-experiment")
+        parser.add_argument("--learning-rate", type=float, default=0.0001)
+        parser.add_argument("--batch-size", type=int, default=8)
+
+        parser.add_argument("--max-epochs", type=int, default=1)
+        parser.add_argument("--limit-train-batches", type=int, default=1)
+        parser.add_argument("--limit-val-batches", type=int, default=1)
+        return parent_parser
 
     def __init__(
         self,
@@ -28,8 +33,8 @@ class ClassificationExperiment(BaseExperiment):
     ):
         super().__init__()
 
-        self.learning_rate: float = 0.001
-        self.batch_size: int = 32
+        self.learning_rate = kwargs.get("learning_rate")
+        self.batch_size = kwargs.get("batch_size")
 
         self.metrics: Dict[str, Callable] = kwargs.get(
             "metrics",

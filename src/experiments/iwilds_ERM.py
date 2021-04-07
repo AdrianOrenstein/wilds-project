@@ -18,14 +18,19 @@ class ClassificationExperiment(BaseExperiment):
     NAME = "iwilds-ResNet50-ERM"
     TAGS = {
         "MLFLOW_RUN_NAME": NAME,
-        "SEED": 1,
         "dataset": "iwildcam",
         "algorithm": "ERM",
         "model": "torchvision.models.resnet50",
     }
-    TRAINING_KWARGS = {
-        "max_epochs": 12,  # as per paper
-    }
+
+    @staticmethod
+    def add_model_specific_args(parent_parser):
+        parser = parent_parser.add_argument_group("iwilds-ResNet50-ERM")
+        parser.add_argument("--learning_rate", type=float, default=0.00003)
+        parser.add_argument("--batch_size", type=int, default=8)
+
+        parser.add_argument("--max-epochs", type=int, default=12)
+        return parent_parser
 
     def __init__(
         self,
@@ -33,8 +38,8 @@ class ClassificationExperiment(BaseExperiment):
     ):
         super().__init__()
 
-        self.learning_rate: float = 0.00003  # as per paper
-        self.batch_size: int = 8  # 16 as per paper, but we're running on 2x GPUs
+        self.learning_rate = kwargs.get("learning_rate")
+        self.batch_size = kwargs.get("batch_size")
 
         self.metrics: Dict[str, Callable] = kwargs.get(
             "metrics",
