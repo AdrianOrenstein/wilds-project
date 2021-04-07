@@ -20,9 +20,11 @@ Conference
 </div>
  
 ## Description   
-What it does
+[WILDs](https://wilds.stanford.edu/) is a benchmark of in-the-wild distribution shifts spanning diverse data modalities and applications, from tumor identification to wildlife monitoring to poverty mapping.
 
-## How to run an interactive terminal
+This repo contains my infrastructure to maintain experiments on the dataset.
+
+## How to run an interactive terminal in my environment
 
 First, download docker.
 
@@ -33,10 +35,6 @@ make run
 ```
 
 ## How to run an experiment
-
-First, download docker.
-
-Second, run for an interactive terminal
 
 ```bash
 make run -- python src/train.py
@@ -61,17 +59,17 @@ make lint
 make test
 ```
 
-### Citation
+## Citation
 
 ```
-@article{YourName,
-  title={Your Title},
-  author={Your team},
-  journal={Location},
-  year={Year}
+@article{wilds-project,
+  title={Wilds project},
+  author={Adrian Orenstein},
+  journal={GitHub. Note: https://github.com/AdrianOrenstein/wilds-project},
+  year={2021}
 }
 ```
 
-## push to public
+#### push to public
 
 `git push public public:master`
