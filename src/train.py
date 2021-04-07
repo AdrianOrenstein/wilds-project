@@ -54,6 +54,22 @@ def train(experiment_id: str):
         tracking_uri=PROJECT_LOGDIR,
     )
 
+    # Use the MLFLOW UID to make our seed
+    if "SEED" not in experiment.TAGS.keys():
+        if str(mlflow_logger.version):
+            experiment.TAGS["SEED"] = (
+                int(
+                    "".join(
+                        map(lambda rune: str(ord(rune)), str(mlflow_logger.version))
+                    )
+                )
+                % 1e10
+            )
+        else:
+            experiment.TAGS["SEED"] = 42
+
+    pl.seed_everything(seed=experiment.TAGS["SEED"])
+
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath=str(mlflow_logger.save_dir),
         filename="{epoch}-{val_loss:.2f}",
@@ -73,7 +89,7 @@ def train(experiment_id: str):
         **experiment.TRAINING_KWARGS,
     )
 
-    if experiment.TAGS["PYLIGHTNING_TUNE"] is True:
+    if experiment.TAGS.get("PYLIGHTNING_TUNE", False) is True:
         logger.info("PYLIGHTNING_TUNE is True")
         trainer.tune(experiment, experiment.data_module)
 
