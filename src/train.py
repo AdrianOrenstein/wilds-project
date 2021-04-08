@@ -68,13 +68,12 @@ def train():
 
     args = parser.parse_args()
 
+    logger.info(f'Parsed args = {args}')
     pl.seed_everything(seed=args.SEED)
 
-    logger.info(f"experiment args: {args}")
     mlflow_logger.log_hyperparams(args)
 
     trainer_callbacks = []
-
     if torch.cuda.is_available():
         trainer_callbacks.append(pl.callbacks.GPUStatsMonitor())
 
@@ -82,7 +81,7 @@ def train():
         [
             pl.callbacks.EarlyStopping(
                 monitor="2_val/val_loss",
-                patience=75,
+                patience=15,
                 mode="min",
             ),
             pl.callbacks.lr_monitor.LearningRateMonitor(logging_interval="step"),
@@ -90,7 +89,8 @@ def train():
     )
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        dirpath=str(mlflow_logger.save_dir),
+        # filter because the other ddp processors don't have access to .name or .version
+        dirpath="/".join(filter(None, [mlflow_logger.save_dir, mlflow_logger.name, mlflow_logger.version])) + '/artifacts',
         filename="{epoch}-{val_loss:.2f}",
         verbose=True,
         mode="min",

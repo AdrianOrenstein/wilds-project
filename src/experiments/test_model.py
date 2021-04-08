@@ -22,9 +22,9 @@ class ClassificationExperiment(BaseExperiment):
         parser.add_argument("--learning-rate", type=float, default=0.0001)
         parser.add_argument("--batch-size", type=int, default=8)
 
-        parser.add_argument("--max-epochs", type=int, default=1)
-        parser.add_argument("--limit-train-batches", type=int, default=1)
-        parser.add_argument("--limit-val-batches", type=int, default=1)
+        parser.add_argument("--max-epochs", type=int, default=2)
+        parser.add_argument("--limit-train-batches", type=int, default=51)
+        parser.add_argument("--limit-val-batches", type=int, default=51)
         return parent_parser
 
     def __init__(

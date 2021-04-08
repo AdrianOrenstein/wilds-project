@@ -63,7 +63,7 @@ class BaseExperiment(pl.LightningModule):
                     prog_bar=prog_bar,
                 )
 
-        wilds_metrics, wilds_metrics_str = self.data_module.dataset.eval(
+        wilds_metrics, _ = self.data_module.dataset.eval(
             torch.argmax(y_hat, dim=1).cpu(), y.cpu(), metadata.cpu()
         )
 
