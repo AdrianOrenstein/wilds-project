@@ -40,11 +40,18 @@ class BaseExperiment(pl.LightningModule):
 
         self.log_metrics(y_hat, y, metadata, prefix="val")
 
-    def test_step(self, batch, batch_idx) -> None:
+    def test_step(self, batch, batch_idx, dataset_idx) -> None:
         _, y, y_hat, metadata, loss = self.step(batch)
-        self.log("test_loss", loss.item())
+        self.log(
+            f"final_{self.data_module.testing_names[dataset_idx]}_loss", loss.item()
+        )
 
-        self.log_metrics(y_hat, y, metadata, prefix="test")
+        self.log_metrics(
+            y_hat,
+            y,
+            metadata,
+            prefix=f"final_{self.data_module.testing_names[dataset_idx]}",
+        )
 
     def log_metrics(
         self,

@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import json
 import time
 from typing import Any, Dict
 import warnings
@@ -42,6 +43,13 @@ def train():
         tags=experiment.TAGS or {},
         tracking_uri=PROJECT_LOGDIR,
     )
+    # filter because the other ddp processors don't have access to .name or .version
+    mlflow_logger_experiment_path = "/".join(
+        filter(
+            None,
+            [mlflow_logger.save_dir, mlflow_logger.name, mlflow_logger.version],
+        )
+    )
 
     parser = experiment.add_model_specific_args(parser)
 
@@ -74,14 +82,7 @@ def train():
     )
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        # filter because the other ddp processors don't have access to .name or .version
-        dirpath="/".join(
-            filter(
-                None,
-                [mlflow_logger.save_dir, mlflow_logger.name, mlflow_logger.version],
-            )
-        )
-        + "/artifacts/weights",
+        dirpath=mlflow_logger_experiment_path + "/artifacts/weights",
         monitor="val_loss",
         mode="min",
         filename="{epoch}-{val_loss:.2f}",
@@ -106,7 +107,24 @@ def train():
         trainer.tune(experiment, experiment.data_module)
 
     experiment = experiment(**vars(args))
+
     trainer.fit(experiment, experiment.data_module)
+
+    test_dataloaders, test_names = experiment.data_module.get_testing_dataloaders()
+    test_results = trainer.test(
+        experiment,
+        test_dataloaders=test_dataloaders,
+    )
+    test_results_json = dict(zip(test_names, test_results))
+
+    with open("/tmp/results.json", "w") as outfile:
+        json.dump(test_results_json, outfile)
+
+    mlflow_logger.experiment.log_artifact(
+        run_id=mlflow_logger.version,
+        local_path="/tmp/results.json",
+        artifact_path="results",
+    )
 
 
 if __name__ == "__main__":
