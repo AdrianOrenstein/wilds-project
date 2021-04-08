@@ -1,6 +1,5 @@
 from typing import Any, Callable, Dict, Optional
 
-import pytorch_lightning.metrics as pl_metrics
 from src.datasets.iwildcam import IWildCamDataModule
 from src.experiments.base import BaseExperiment
 import torch
@@ -44,7 +43,8 @@ class ClassificationExperiment(BaseExperiment):
         self.metrics: Dict[str, Callable] = kwargs.get(
             "metrics",
             {
-                "accuracy": pl_metrics.classification.Accuracy(),
+                # import pytorch_lightning.metrics as pl_metrics
+                # "accuracy": pl_metrics.classification.Accuracy(),
             },
         )
 
