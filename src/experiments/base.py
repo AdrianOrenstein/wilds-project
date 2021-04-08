@@ -28,23 +28,23 @@ class BaseExperiment(pl.LightningModule):
 
     def training_step(self, batch, batch_idx) -> Dict[str, torch.Tensor]:
         _, y, y_hat, metadata, loss = self.step(batch)
-        self.log("1_train/train_loss", loss.item())
+        self.log("train_loss", loss.item())
 
-        self.log_metrics(y_hat, y, metadata, prefix="1_train", prog_bar=True)
+        self.log_metrics(y_hat, y, metadata, prefix="train", prog_bar=True)
 
         return {"loss": loss}
 
     def validation_step(self, batch, batch_idx) -> None:
         _, y, y_hat, metadata, loss = self.step(batch)
-        self.log("2_val/val_loss", loss.item())
+        self.log("val_loss", loss.item())
 
-        self.log_metrics(y_hat, y, metadata, prefix="2_val")
+        self.log_metrics(y_hat, y, metadata, prefix="val")
 
     def test_step(self, batch, batch_idx) -> None:
         _, y, y_hat, metadata, loss = self.step(batch)
-        self.log("3_test/test_loss", loss.item())
+        self.log("test_loss", loss.item())
 
-        self.log_metrics(y_hat, y, metadata, prefix="3_test")
+        self.log_metrics(y_hat, y, metadata, prefix="test")
 
     def log_metrics(
         self,
@@ -58,7 +58,7 @@ class BaseExperiment(pl.LightningModule):
         for metric_name, metric_function in self.metrics.items():
             if len(y.unique()) != 1:
                 self.log(
-                    f"{prefix}/{metric_name}",
+                    f"{prefix}_{metric_name}",
                     metric_function(torch.argmax(y_hat, dim=1).cpu(), y.cpu()),
                     prog_bar=prog_bar,
                 )
@@ -70,7 +70,7 @@ class BaseExperiment(pl.LightningModule):
         for metric_name, metric_value in wilds_metrics.items():
             if len(y.unique()) != 1:
                 self.log(
-                    f"WILDS-{prefix}/{metric_name}",
+                    f"WILDS_{prefix}_{metric_name}",
                     metric_value,
                     prog_bar=prog_bar,
                 )

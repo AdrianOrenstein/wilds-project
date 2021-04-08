@@ -4,7 +4,6 @@ from typing import Any, Dict
 import warnings
 
 from loguru import logger
-import mlflow
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import MLFlowLogger
 from src.experiments.experiments import get_experiment
@@ -19,7 +18,6 @@ warnings.filterwarnings(
 
 
 def get_cuda_config() -> Dict[str, Any]:
-
     if torch.cuda.is_available():
         logger.info("cuda is available")
         return {
@@ -30,19 +28,6 @@ def get_cuda_config() -> Dict[str, Any]:
     else:
         logger.info("cuda not available")
         return {"distributed_backend": None}
-
-
-def print_auto_logged_info(r):
-    tags = {k: v for k, v in r.data.tags.items() if not k.startswith("mlflow.")}
-    artifacts = [
-        f.path
-        for f in mlflow.tracking.MlflowClient().list_artifacts(r.info.run_id, "model")
-    ]
-    logger.info(f"run_id: {r.info.run_id}")
-    logger.info(f"artifacts: {artifacts}")
-    logger.info(f"params: {r.data.params}")
-    logger.info(f"metrics: {r.data.metrics}")
-    logger.info(f"tags: {tags}")
 
 
 def train():
@@ -68,7 +53,7 @@ def train():
 
     args = parser.parse_args()
 
-    logger.info(f'Parsed args = {args}')
+    logger.info(f"Parsed args = {args}")
     pl.seed_everything(seed=args.SEED)
 
     mlflow_logger.log_hyperparams(args)
@@ -80,7 +65,7 @@ def train():
     trainer_callbacks.extend(
         [
             pl.callbacks.EarlyStopping(
-                monitor="2_val/val_loss",
+                monitor="val_loss",
                 patience=15,
                 mode="min",
             ),
@@ -90,10 +75,19 @@ def train():
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         # filter because the other ddp processors don't have access to .name or .version
-        dirpath="/".join(filter(None, [mlflow_logger.save_dir, mlflow_logger.name, mlflow_logger.version])) + '/artifacts',
-        filename="{epoch}-{val_loss:.2f}",
-        verbose=True,
+        dirpath="/".join(
+            filter(
+                None,
+                [mlflow_logger.save_dir, mlflow_logger.name, mlflow_logger.version],
+            )
+        )
+        + "/artifacts/weights",
+        monitor="val_loss",
         mode="min",
+        filename="{epoch}-{val_loss:.2f}",
+        verbose=False,
+        save_last=True,
+        save_top_k=5,
     )
 
     training_kwargs = get_cuda_config()
@@ -113,14 +107,6 @@ def train():
 
     experiment = experiment(**vars(args))
     trainer.fit(experiment, experiment.data_module)
-
-    # mlflow_logger.experiment.save_artifacts(
-    #     run_id=mlflow_logger.experiment.experiment_id,
-    #     local_dir='<model>.ckpt',
-    #     artifact_path='models',
-    # )
-
-    # print_auto_logged_info(mlflow.get_run(run_id=mlflow_logger.run_id))
 
 
 if __name__ == "__main__":
